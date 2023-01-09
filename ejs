@@ -1,0 +1,956 @@
+#COLOREADODEMAPAS
+def esFactible(g,numeroColores, solucion, etapa, intento):
+    for i in range(len(solucion)):
+        if(g[etapa][i]and intento==solucion[i]):
+            return False
+    return True
+
+
+def coloresBT(g,numeroColores, solucion, etapa):
+    exito=False
+    intento=1
+    while(intento<=numeroColores and not exito):
+        if esFactible(g,numeroColores,solucion,etapa,intento):
+            solucion[etapa]=intento
+            if(etapa==len(solucion)-1):
+                exito=True
+            else:
+                exito=coloresBT(g,numeroColores,solucion,etapa+1)
+            if not exito:
+                solucion[etapa]=0
+        intento=intento+1
+    return exito
+
+
+
+#MAIN
+n, m = map(int, input().strip().split())
+g = []
+for i in range(n):
+    fila = [False]*n
+    g.append(fila)
+for i in range(m):
+    u, v = map(int, input().strip().split())
+    g[u-1][v-1]=True
+    g[v-1][u-1]=True
+
+#print(g)
+print("Colores a usar:")
+numeroColores=int(input())
+solucion=[0]*n
+
+exito=coloresBT(g,numeroColores,solucion,0)
+if exito:
+    print(solucion)
+else:
+    print("NO SOLUCION")
+    
+################################################################################################################################3    
+#LABERINTOTODASSOLUCIONES
+def esFactible(tablero, actualX, actualY,movX,movY,nuevaX,nuevaY,intento):
+    return 0<=nuevaX<len(tablero) and 0<=nuevaY<len(tablero) and (tablero[nuevaX][nuevaY]=="-" or tablero[nuevaX][nuevaY]=="S")
+
+def laberintoBT(tablero, actualX, actualY,movX,movY):
+    intento=0
+    while(intento<4):
+        nuevaX=actualX+movX[intento]
+        nuevaY = actualY + movY[intento]
+        if esFactible(tablero, actualX, actualY,movX,movY,nuevaX,nuevaY,intento):
+            antiguoValor = tablero[nuevaX][nuevaY]
+            tablero[nuevaX][nuevaY]="X"
+            """imprimir(tablero)
+            input("PULSA ENTER")"""
+            if(antiguoValor=="S"):
+                tablero[nuevaX][nuevaY] = "S"   #LINEA PARA QUE SIGA APARECIENDO LA S Y QUEDE MAS BONITO
+                imprimir(tablero)
+                print("########################################")
+            else:
+                laberintoBT(tablero, nuevaX, nuevaY,movX,movY)
+            if tablero[nuevaX][nuevaY]=="X": #Este if es obligatorio al hacer todas las Soluciones
+                tablero[nuevaX][nuevaY]="-"  #Sin hacer este if, esta instrucción estando sola pondría nada más acabar la primera solución(el primer camino hasta "S") "-" donde esta la "S", dejando bucle infinito pal resto de soluciones que nunca encontrarán la "S"
+        intento=intento+1
+
+
+tablero=[]
+dim=10
+for i in range(dim):
+    fila=["-"]*dim
+    tablero.append(fila)
+
+tablero[0][0]="X"
+tablero[2][2]="M"
+tablero[2][3]="M"
+tablero[2][4]="M"
+tablero[2][5]="M"
+tablero[2][6]="M"
+tablero[2][7]="M"
+tablero[2][8]="M"
+tablero[4][5]="M"
+tablero[5][5]="M"
+tablero[6][5]="M"
+tablero[7][5]="M"
+tablero[5][7]="S"
+movX=[0,0,-1,1]
+movY=[-1,1,0,0]
+laberintoBT(tablero,0,0,movX,movY)
+
+################################################################################################################################
+#SUDOKUSINNUMEROS
+def dameCuadrante(X_a_rellenar, Y_a_rellenar):
+    if(X_a_rellenar<=2):
+        if(Y_a_rellenar<=2):
+            return 0
+        if(Y_a_rellenar <= 5):
+            return 1
+        if(Y_a_rellenar <= 8):
+            return 2
+    if (X_a_rellenar <= 5):
+        if (Y_a_rellenar <= 2):
+            return 3
+        if (Y_a_rellenar <= 5):
+            return 4
+        if (Y_a_rellenar <= 8):
+            return 5
+    if (X_a_rellenar <= 8):
+        if (Y_a_rellenar <= 2):
+            return 6
+        if (Y_a_rellenar <= 5):
+            return 7
+        if (Y_a_rellenar <= 8):
+            return 8
+
+def esFactible(tablero, X_a_rellenar, Y_a_rellenar, intento, matrizFilas, matrizColumnas,matrizCuadrantes):
+    return (tablero[X_a_rellenar][Y_a_rellenar] == 0) and not matrizFilas[X_a_rellenar][intento - 1] \
+           and not matrizColumnas[Y_a_rellenar][intento - 1] \
+           and not matrizCuadrantes[dameCuadrante(X_a_rellenar, Y_a_rellenar)][intento - 1]
+
+def sudokuBT(tablero, X_a_rellenar, Y_a_rellenar, matrizFilas, matrizColumnas,matrizCuadrantes):
+    exito = False
+    intento = 1
+    while (intento <= 9 and not exito):
+        if esFactible(tablero, X_a_rellenar, Y_a_rellenar, intento, matrizFilas, matrizColumnas,matrizCuadrantes):
+            tablero[X_a_rellenar][Y_a_rellenar] = intento
+            matrizFilas[X_a_rellenar][intento - 1] = True
+            matrizColumnas[Y_a_rellenar][intento - 1] = True
+            matrizCuadrantes[dameCuadrante(X_a_rellenar, Y_a_rellenar)][intento - 1]=True
+            if (X_a_rellenar == 8 and Y_a_rellenar == 8):
+                exito = True
+            else:
+                if (Y_a_rellenar == 8):
+                    exito = sudokuBT(tablero, X_a_rellenar + 1, Y_a_rellenar == 0, matrizFilas, matrizColumnas,matrizCuadrantes)
+                else:
+                    exito = sudokuBT(tablero, X_a_rellenar, Y_a_rellenar + 1, matrizFilas, matrizColumnas,matrizCuadrantes)
+            if not exito:
+                tablero[X_a_rellenar][Y_a_rellenar] = 0
+                matrizFilas[X_a_rellenar][intento - 1] = False
+                matrizColumnas[Y_a_rellenar][intento - 1] = False
+                matrizCuadrantes[dameCuadrante(X_a_rellenar, Y_a_rellenar)][intento - 1]=False
+        intento = intento + 1
+    return exito
+
+
+def imprimir(tablero):
+    for i in range(len(tablero)):
+        for j in range(len(tablero[i])):
+            print(tablero[i][j], end=" ")
+        print()
+
+
+dim = 9
+tablero = []
+for i in range(dim):
+    fila = [0] * dim
+    tablero.append(fila)
+
+matrizFilas = []
+for i in range(dim):
+    filas = [False] * dim
+    matrizFilas.append(filas)
+
+
+matrizColumnas = []
+for i in range(dim):
+    columnas = [False] * dim
+    matrizColumnas.append(columnas)
+
+matrizCuadrantes = []
+for i in range(dim):
+    f = [False] * dim
+    matrizCuadrantes.append(f)
+
+exito = sudokuBT(tablero, 0, 0, matrizFilas, matrizColumnas,matrizCuadrantes)
+if exito:
+    imprimir(tablero)
+else:
+    print("NO SOLUCION")
+##########################################################################################
+#SUDOKUCONNUMEROS
+
+def dameCuadrante(X_a_rellenar, Y_a_rellenar):
+    if(X_a_rellenar<=2):
+        if(Y_a_rellenar<=2):
+            return 0
+        if(Y_a_rellenar <= 5):
+            return 1
+        if(Y_a_rellenar <= 8):
+            return 2
+    if (X_a_rellenar <= 5):
+        if (Y_a_rellenar <= 2):
+            return 3
+        if (Y_a_rellenar <= 5):
+            return 4
+        if (Y_a_rellenar <= 8):
+            return 5
+    if (X_a_rellenar <= 8):
+        if (Y_a_rellenar <= 2):
+            return 6
+        if (Y_a_rellenar <= 5):
+            return 7
+        if (Y_a_rellenar <= 8):
+            return 8
+
+def esFactible(tablero, X_a_rellenar, Y_a_rellenar, intento, matrizFilas, matrizColumnas,matrizCuadrantes):
+    return (tablero[X_a_rellenar][Y_a_rellenar] == 0) and not matrizFilas[X_a_rellenar][intento - 1]\
+                and not matrizColumnas[Y_a_rellenar][intento - 1] \
+                and not matrizCuadrantes[dameCuadrante(X_a_rellenar,Y_a_rellenar)][intento-1]
+
+def sudokuBT(tablero, X_a_rellenar, Y_a_rellenar, matrizFilas, matrizColumnas,matrizCuadrantes):
+    if (tablero[X_a_rellenar][Y_a_rellenar]!=0):
+        if (X_a_rellenar == 8 and Y_a_rellenar == 8):
+            exito = True
+        else:
+            if (Y_a_rellenar == 8):
+                exito = sudokuBT(tablero, X_a_rellenar + 1, Y_a_rellenar == 0, matrizFilas, matrizColumnas,
+                                 matrizCuadrantes)
+            else:
+                exito = sudokuBT(tablero, X_a_rellenar, Y_a_rellenar + 1, matrizFilas, matrizColumnas, matrizCuadrantes)
+        return exito
+    else:
+        exito = False
+        intento = 1
+        while (intento <= 9 and not exito):
+            if esFactible(tablero, X_a_rellenar, Y_a_rellenar, intento, matrizFilas, matrizColumnas,matrizCuadrantes):
+                tablero[X_a_rellenar][Y_a_rellenar] = intento
+                matrizFilas[X_a_rellenar][intento - 1] = True
+                matrizColumnas[Y_a_rellenar][intento - 1] = True
+                matrizCuadrantes[dameCuadrante(X_a_rellenar, Y_a_rellenar)][intento - 1]=True
+                if (X_a_rellenar == 8 and Y_a_rellenar == 8):
+                    exito = True
+                else:
+                    if (Y_a_rellenar == 8):
+                        exito = sudokuBT(tablero, X_a_rellenar + 1, Y_a_rellenar == 0, matrizFilas, matrizColumnas,matrizCuadrantes)
+                    else:
+                        exito = sudokuBT(tablero, X_a_rellenar, Y_a_rellenar + 1, matrizFilas, matrizColumnas,matrizCuadrantes)
+                if not exito:
+                    tablero[X_a_rellenar][Y_a_rellenar] = 0
+                    matrizFilas[X_a_rellenar][intento - 1] = False
+                    matrizColumnas[Y_a_rellenar][intento - 1] = False
+                    matrizCuadrantes[dameCuadrante(X_a_rellenar, Y_a_rellenar)][intento - 1]=False
+            intento = intento + 1
+        return exito
+
+
+def imprimir(tablero):
+    for i in range(len(tablero)):
+        for j in range(len(tablero[i])):
+            print(tablero[i][j], end=" ")
+        print()
+
+
+dim = 9
+tablero = []
+for i in range(dim):
+    fila = [0] * dim
+    tablero.append(fila)
+
+matrizFilas = []
+for i in range(dim):
+    filas = [False] * dim
+    matrizFilas.append(filas)
+
+
+matrizColumnas = []
+for i in range(dim):
+    columnas = [False] * dim
+    matrizColumnas.append(columnas)
+
+matrizCuadrantes = []
+for i in range(dim):
+    f = [False] * dim
+    matrizCuadrantes.append(f)
+
+
+tablero[0][0]=8
+tablero[1][2]=3
+tablero[1][3]=6
+tablero[2][1]=7
+tablero[2][4]=9
+tablero[2][6]=2
+tablero[3][1]=5
+tablero[3][5]=7
+tablero[4][4]=4
+tablero[4][5]=5
+tablero[4][6]=7
+tablero[5][3]=1
+tablero[5][7]=3
+tablero[6][2]=1
+tablero[6][7]=6
+tablero[6][8]=8
+tablero[7][2]=8
+tablero[7][3]=5
+tablero[7][7]=1
+tablero[8][1]=9
+tablero[8][6]=4
+
+print("Tablero enunciado:")
+imprimir(tablero)
+
+
+for i in range(len(tablero)):
+    for j in range(len(tablero[i])):
+        if(tablero[i][j]!=0):
+            matrizFilas[i][tablero[i][j]-1]=True
+            matrizColumnas[j][tablero[i][j]-1]=True
+            matrizCuadrantes[dameCuadrante(i,j)][tablero[i][j]-1]=True
+
+exito = sudokuBT(tablero, 0, 0, matrizFilas, matrizColumnas,matrizCuadrantes)
+if exito:
+    print("Tablero resultado:")
+    imprimir(tablero)
+else:
+    print("NO SOLUCION")
+ 
+ #######################################################################
+ #CUADRADOMAGICOCOMPUESTO
+ def imprimir(tablero):
+    for i in range(len(tablero)):
+        for j in range(len(tablero[i])):
+            print(tablero[i][j],end=" ")
+        print()
+
+
+def esFactible(n,tablero, X_a_rellenar, Y_a_rellenar, intento,numerosPuestos,cuentasPorFila,cuentasPorColumnas,numeroMagico,cuentasDosDiagonales):
+    if numerosPuestos[intento - 1]:
+        return False
+    if (Y_a_rellenar == n-1):
+        if(cuentasPorFila[X_a_rellenar]+intento)!=numeroMagico:
+            return False
+    if(Y_a_rellenar!=n-1):
+        if(cuentasPorFila[X_a_rellenar]+intento)>=numeroMagico:
+            return False
+
+    if(X_a_rellenar==n-1):
+        if (cuentasPorColumnas[Y_a_rellenar] + intento)!= numeroMagico:
+            return False
+    if (X_a_rellenar == 1):
+        if (cuentasPorColumnas[X_a_rellenar] + intento) >= numeroMagico:
+            return False
+
+
+    if(X_a_rellenar==Y_a_rellenar)and(Y_a_rellenar==n-1):
+        if(cuentasDosDiagonales[0]+intento!=numeroMagico):
+            return False
+    if(X_a_rellenar==Y_a_rellenar)and (Y_a_rellenar!=n-1):
+        if (cuentasDosDiagonales[0]+intento >= numeroMagico):
+            return False
+
+    if (X_a_rellenar+Y_a_rellenar==n-1) and ((X_a_rellenar==n-1) and (Y_a_rellenar == 0)):
+        if (cuentasDosDiagonales[1] + intento != numeroMagico):
+            return False
+    if (X_a_rellenar+Y_a_rellenar==n-1) and (X_a_rellenar!=n-1):
+        if (cuentasDosDiagonales[1] + intento >= numeroMagico):
+            return False
+    return True
+
+
+def cuadradoMagicBT(n,tablero, X_a_rellenar, Y_a_rellenar,numerosPuestos,cuentasPorFila,cuentasPorColumnas,numeroMagico,cuentasDosDiagonales):
+    exito=False
+    intento=1
+    while(intento<=(n*n) and not exito):
+        if esFactible(n,tablero,X_a_rellenar,Y_a_rellenar,intento,numerosPuestos,cuentasPorFila,cuentasPorColumnas,numeroMagico,cuentasDosDiagonales):
+            tablero[X_a_rellenar][Y_a_rellenar]=intento
+            numerosPuestos[intento-1]=True
+            cuentasPorFila[X_a_rellenar]=cuentasPorFila[X_a_rellenar]+intento
+            cuentasPorColumnas[Y_a_rellenar]=cuentasPorColumnas[Y_a_rellenar]+intento
+            if(X_a_rellenar==Y_a_rellenar):
+                cuentasDosDiagonales[0]=cuentasDosDiagonales[0]+intento
+            if(X_a_rellenar+Y_a_rellenar==n-1):
+                cuentasDosDiagonales[1]=cuentasDosDiagonales[1]+intento
+            if(X_a_rellenar==n-1 and Y_a_rellenar==n-1):
+                exito=True
+            else:
+                if(Y_a_rellenar<n-1):
+                    nuevaX=X_a_rellenar
+                    nuevaY=Y_a_rellenar+1
+                else:
+                    nuevaX=X_a_rellenar+1
+                    nuevaY=0
+                exito=cuadradoMagicBT(n,tablero,nuevaX,nuevaY,numerosPuestos,cuentasPorFila,cuentasPorColumnas,numeroMagico,cuentasDosDiagonales)
+            if not exito:
+                tablero[X_a_rellenar][Y_a_rellenar]=0
+                numerosPuestos[intento-1]=False
+                cuentasPorFila[X_a_rellenar] = cuentasPorFila[X_a_rellenar] - intento
+                cuentasPorColumnas[Y_a_rellenar] = cuentasPorColumnas[Y_a_rellenar] - intento
+                if (X_a_rellenar - Y_a_rellenar == 0):
+                    cuentasDosDiagonales[0] = cuentasDosDiagonales[0] - intento
+                if (X_a_rellenar + Y_a_rellenar == n - 1):
+                    cuentasDosDiagonales[1] = cuentasDosDiagonales[1] - intento
+        intento=intento+1
+    return exito
+
+
+
+#MAIN
+n=int(input())
+tablero=[]
+for i in range(n):
+    fila=[0]*n
+    tablero.append(fila)
+numeroMagico=int((n*((n*n)+1))/2)
+#print(numeroMagico)
+cuentasPorFila=[0]*n
+cuentasPorColumnas=[0]*n
+cuentasDosDiagonales=[0,0]
+numerosPuestos= [False] * (n*n)
+#print(numerosPuestos)
+exito=cuadradoMagicBT(n,tablero,0,0,numerosPuestos,cuentasPorFila,cuentasPorColumnas,numeroMagico,cuentasDosDiagonales)
+if exito:
+    imprimir(tablero)
+else:
+    print("NO SOLUCION")
+  #######################################################################
+ #SUMACARDINALIDADMENORMEJORSOLUCION
+ def esFactible(Vector, etapa, suma, resultado,intento,mejorSolucion,contMejorSolucion,contSolucionGenerada):
+    return ((intento==1) and sumaHastaAhora[0]+Vector[etapa]<=suma) or (intento==2)
+
+
+def imprimirVector(Vector, resultado):
+    for i in range(len(Vector)):
+        if(resultado[i]):
+            print(Vector[i],end=" ")
+
+
+def copiar(resultado, mejorSolucion):
+    for i in range(len(resultado)):
+        mejorSolucion[i]=resultado[i]
+
+
+def cardinalidadBT(Vector, etapa, suma,resultado,mejorSolucion,contMejorSolucion,contSolucionGenerada,sumaHastaAhora):
+    intento=1    #1=cogerlo, 2=pasar
+    while(intento<=2):
+        if esFactible(Vector,etapa,suma,resultado,intento,mejorSolucion,contMejorSolucion,contSolucionGenerada):
+            if(intento==1):
+                resultado[etapa]=True
+                sumaHastaAhora[0]=sumaHastaAhora[0]+Vector[etapa]
+                contSolucionGenerada[0]=contSolucionGenerada[0]+1
+            if sumaHastaAhora[0]==suma:
+                if(contSolucionGenerada[0]<contMejorSolucion[0]):
+                    copiar(resultado,mejorSolucion)
+                    contMejorSolucion[0]=contSolucionGenerada[0]
+            else:
+                if(etapa<len(Vector)-1):
+                    cardinalidadBT(Vector,etapa+1,suma,resultado,mejorSolucion,contMejorSolucion,contSolucionGenerada,sumaHastaAhora)
+            if(resultado[etapa]==True):
+                resultado[etapa]=False
+                sumaHastaAhora[0]=sumaHastaAhora[0]-Vector[etapa]
+                contSolucionGenerada[0] = contSolucionGenerada[0] - 1
+        intento=intento+1
+
+
+dim=int(input())
+cadena=input()
+c=cadena.split()
+Vector=[]
+for i in c:
+    Vector.append(int(i))
+suma=int(input())
+
+resultado=[False]*dim
+
+sumaHastaAhora=[0]                              
+
+mejorSolucion=[False]*dim
+contMejorSolucion=[dim]
+contSolucionGenerada=[0]
+cardinalidadBT(Vector,0,suma,resultado,mejorSolucion,contMejorSolucion,contSolucionGenerada,sumaHastaAhora)
+imprimirVector(Vector,mejorSolucion)
+print()
+print(contMejorSolucion[0])
+############################################################################3
+#COLECCIONESCONTARSOLUCIONES
+def primerEscogido(solucion, elementos):
+    for i in range(len(solucion)):
+        if solucion[i]:
+            return elementos[i]
+
+
+def esFactible(elementos, solucion, etapa, intento, m, escogidos, contSoluciones):
+    if intento == 1 and escogidos[0] != 0:
+        if (elementos[etapa] % primerEscogido(solucion, elementos) != 0):
+            return False
+    if intento == 1 and escogidos[0] == m:
+        return False
+    return True
+
+
+def coleccionesBT(elementos, solucion, etapa, m, escogidos, contSoluciones):
+    intento = 1
+    while (intento <= 2):
+        if esFactible(elementos, solucion, etapa, intento, m, escogidos, contSoluciones):
+            if (intento == 1):
+                solucion[etapa] = True
+                escogidos[0] = escogidos[0] + 1
+                """print(solucion)
+                print(escogidos[0])
+                input()"""
+            else:
+                solucion[etapa] = False
+            if escogidos[0] == m:
+                contSoluciones[0] = contSoluciones[0] + 1
+            elif (etapa + 1) < len(solucion):
+                coleccionesBT(elementos, solucion, etapa + 1, m, escogidos, contSoluciones)
+            if (solucion[etapa] == True):
+                solucion[etapa] = False
+                escogidos[0] = escogidos[0] - 1
+        intento = intento + 1
+
+
+cantidad = int(input())
+cadena = input()
+c = cadena.split()
+elementos = []
+for i in c:
+    elementos.append(int(i))
+solucion = [False] * cantidad
+m = int(input())
+escogidos = [0]
+elementos.sort()
+contSoluciones = [0]
+coleccionesBT(elementos, solucion, 0, m, escogidos, contSoluciones)
+print(contSoluciones[0])
+######################################################################################
+#CICLOHAMILTONIANOTODAS
+def esFactible(g, solucion, visitados, etapa, n, intento):
+    if (etapa==0):
+        return True
+    elif(etapa<len(solucion)-1):
+        if g[solucion[etapa-1]][intento]==1 and not visitados[intento]:
+            return True
+    elif(etapa==len(solucion)-1):
+        if g[solucion[etapa - 1]][intento] == 1 and visitados[intento] and intento==solucion[0]:
+            return True
+    return False
+
+
+def cicloHamiltonianoBT(g,solucion,visitados,etapa,n):
+    intento=0
+    while(intento<n):
+        if esFactible(g,solucion,visitados,etapa,n,intento):
+            solucion[etapa]=intento
+            visitados[intento]=True
+            if(etapa==len(solucion)-1):
+                print(solucion)
+                print()
+            else:
+                cicloHamiltonianoBT(g,solucion,visitados,etapa+1,n)
+
+            solucion[etapa]=-1
+            if(etapa!=len(solucion)-1):          
+                visitados[intento] = False
+        intento=intento+1
+
+
+
+#MAIN
+n, m = map(int, input().strip().split())
+g = []
+for i in range(n):
+    fila = [0]*n
+    g.append(fila)
+
+
+
+for i in range(m):
+    u, v = map(int, input().strip().split())
+    g[u][v]=1
+    g[v][u]=1
+#print(g)
+solucion=[-1]*(len(g)+1)
+visitados=[False]*len(g)
+cicloHamiltonianoBT(g,solucion,visitados,0,n)
+##########################################################################################
+#CICLOEULERIANOTODAS
+def esFactible(g, solucion, visitados, etapa, n, intento):
+    if (etapa==0):
+        return True
+    else:
+        if g[solucion[etapa - 1]][intento] == 1 and \
+                not visitados[solucion[etapa - 1]][intento] and not visitados[intento][solucion[etapa - 1]]:
+            return True
+    return False
+
+
+def cicloEulerianoBT(g,solucion,visitados,etapa,n):
+    intento=0
+    while(intento<n):
+        if esFactible(g,solucion,visitados,etapa,n,intento):
+            solucion[etapa]=intento
+            if(etapa!=0): 
+                visitados[solucion[etapa-1]][intento]=True
+                visitados[intento][solucion[etapa-1]]=True
+            if(etapa==len(solucion)-1):
+                print(solucion)
+            else:
+                cicloEulerianoBT(g,solucion,visitados,etapa+1,n)
+
+            solucion[etapa]=-1
+            if(etapa!=0):
+                visitados[solucion[etapa - 1]][intento] = False
+                visitados[intento][solucion[etapa - 1]] = False
+        intento=intento+1
+
+
+
+#MAIN
+n, m = map(int, input().strip().split())
+
+g = []
+for i in range(n):
+    fila = [0]*n
+    g.append(fila)
+
+for i in range(m):
+    u, v = map(int, input().strip().split())
+    g[u][v]=1
+    g[v][u]=1
+
+solucion=[-1]*(m+1)
+
+visitados=[]
+for i in range(len(g)):
+    fila=[False]*len(g)
+    visitados.append(fila)
+
+cicloEulerianoBT(g,solucion,visitados,0,n)
+######################################################################
+#PROBLEMADELASDOSMOCHILASTODASSOLUCIONES
+def esFactible(solucion,etapa,Pesos,PesosMochilas,cuentas,intento):
+    if intento==0:
+        return True
+    elif intento==1:
+        if cuentas[intento - 1] + Pesos[etapa] <= PesosMochilas[intento-1]:
+            return True
+    elif(intento==2):
+        if cuentas[intento - 1] + Pesos[etapa] <= PesosMochilas[intento - 1]:
+            return True
+
+
+def mochilasBT(solucion,etapa,Pesos,PesosMochilas,cuentas):
+    intento=0
+    while(intento<=2):
+        if esFactible(solucion,etapa,Pesos,PesosMochilas,cuentas,intento):
+            solucion[etapa]=intento
+            if(intento!=0):    
+                cuentas[intento-1]=cuentas[intento-1]+Pesos[etapa]
+            if(etapa==len(solucion)-1):
+                print(solucion)
+                print()
+            else:
+                mochilasBT(solucion,etapa+1,Pesos,PesosMochilas,cuentas)
+
+            solucion[etapa]=0
+            if (intento != 0):    
+                cuentas[intento - 1] = cuentas[intento - 1] - Pesos[etapa]
+        intento=intento+1
+
+
+
+#MAIN
+numeroObjetos=int(input())
+pesos=input()
+c=pesos.split()
+Pesos=[]
+for i in c:
+    Pesos.append(int(i))
+
+pesosMaximos=input()
+c=pesosMaximos.split()
+C1=int(c[0])
+C2=int(c[1])
+PesosMochilas=[C1,C2]
+
+
+solucion=[-1]*numeroObjetos
+cuentas=[0,0]
+mochilasBT(solucion,0,Pesos,PesosMochilas,cuentas)
+###################################################3
+#MASTERCHOF
+def esFactible(N, C,etapa, pesosAlimentos, valorAlimentos, seleccionables, valorAcumulado, pesoDisponible, intento):
+    if intento==1:
+        if seleccionables[etapa] and pesosAlimentos[etapa]<=pesoDisponible[0]:
+            return True
+    if intento==2:
+        return True
+
+def masterChofBT(N, C,etapa,pesosAlimentos,valorAlimentos,seleccionables,valorAcumulado,pesoDisponible,valorMejor):
+    intento=1       #intento 1 lo cojo y intento 2 no lo cojo
+    while(intento<=2):
+        if esFactible(N, C,etapa,pesosAlimentos,valorAlimentos,seleccionables,valorAcumulado,pesoDisponible,intento):
+            if intento==1:
+                seleccionables[etapa]=False
+                valorAcumulado[0]=valorAcumulado[0]+valorAlimentos[etapa]
+                pesoDisponible[0]=pesoDisponible[0]-pesosAlimentos[etapa]
+            if(etapa==N-1):
+                if(valorAcumulado[0]>valorMejor[0]):
+                    valorMejor[0]=valorAcumulado[0]
+            else:
+                masterChofBT(N, C,etapa+1,pesosAlimentos,valorAlimentos,seleccionables,valorAcumulado,pesoDisponible,valorMejor)
+            if intento == 1:
+                seleccionables[etapa] = True
+                valorAcumulado[0] = valorAcumulado[0] - valorAlimentos[etapa]
+                pesoDisponible[0] = pesoDisponible[0] + pesosAlimentos[etapa]
+        intento=intento+1
+
+N,C=map(int,input().strip().split())
+pesosAlimentos=[]
+valorAlimentos=[]
+for i in range(N):
+    cadena=input()
+    c=cadena.split()
+    nombre=c[0]
+    peso=int(c[1])
+    valor=int(c[2])
+    pesosAlimentos.append(peso)
+    valorAlimentos.append(valor)
+
+
+seleccionables=[True]*N
+valorAcumulado=[0]
+pesoDisponible=[C]
+valorMejor=[0]
+masterChofBT(N,C,0,pesosAlimentos,valorAlimentos,seleccionables,valorAcumulado,pesoDisponible,valorMejor)
+print(valorMejor[0])
+##################################################################################################3
+#REGHOMOGENEAS
+def esHomogeneaEntera(matriz, iniF, finF, iniC, finC):  
+    n=matriz[iniF][iniC]
+    for i in range(iniF,finF+1):
+        for j in range(iniC,finC+1):
+            if(matriz[i][j]!=n):
+                return False
+    return True
+
+
+def numRegHom(matriz,iniF,finF,iniC,finC):
+    if(iniF==finF):   
+        return 1
+    elif esHomogeneaEntera(matriz,iniF,finF,iniC,finC):
+        return 1
+    else:
+        mitadFilas=(iniF+finF)//2
+        mitadC=(iniC+finC)//2
+
+        return numRegHom(matriz,iniF,mitadFilas,iniC,mitadC)+numRegHom(matriz,iniF,mitadFilas,mitadC+1,finC)+\
+                numRegHom(matriz,mitadFilas+1,finF,iniC,mitadC)+numRegHom(matriz,mitadFilas+1,finF,mitadC+1,finC)
+
+
+matriz=[]
+dimension=int(input())
+for i in range(dimension):
+    cadena=input()
+    c=cadena.split()
+    fila=[]
+    for numero in c:
+        fila.append(int(numero))
+    matriz.append(fila)
+
+
+num=numRegHom(matriz,0,len(matriz)-1,0,len(matriz[0])-1)
+print(num)
+#####################################################################
+#ESMAYORITARIO
+def mayoritario(vector, ini, fin):
+    if(ini==fin):
+        return [True,vector[ini]]
+    else:
+        mitad=(ini+fin)//2
+        [esMayoritario1,quien1]=mayoritario(vector,ini,mitad)
+        [esMayoritario2,quien2]=mayoritario(vector,mitad+1,fin)
+        if esMayoritario1:
+            cont=0
+            for i in range(ini,fin+1):
+                if(vector[i]==quien1):
+                    cont=cont+1
+            if cont>(ini + fin + 1)//2:     
+                return [True,quien1]
+
+        if esMayoritario2:
+            cont=0
+            for i in range(ini,fin+1):
+                if(vector[i]==quien2):
+                    cont=cont+1
+            if cont > (ini + fin + 1)//2:   
+                return [True,quien2]
+
+        return [False,-1]
+
+
+
+
+
+vector=[1,1,1,3,10,1,1,7,1,4]
+resultado=mayoritario(vector,0,len(vector)-1)
+print(resultado)
+#######################################################3
+#MERGESORT
+def mergeSort(vector,ini,fin):
+    if(ini==fin):
+        return [vector[ini]]
+    else:
+        mitad=(ini+fin)//2
+        resultado1=mergeSort(vector,ini,mitad)
+        resultado2=mergeSort(vector,mitad+1,fin)
+        i=0
+        j=0
+        resultado=[]
+        while i<len(resultado1) and j<len(resultado2):
+            if(resultado1[i]<resultado2[j]):
+                resultado.append(resultado1[i])
+                i=i+1
+            else:
+                resultado.append(resultado2[j])
+                j=j+1
+
+        while i < len(resultado1):
+            resultado.append(resultado1[i])
+            i=i+1
+        while j < len(resultado2):
+            resultado.append(resultado2[j])
+            j=j+1
+        return resultado
+
+
+
+
+
+vector=[8,3,4,2,1,5,40,6]
+vectorOrdenado=mergeSort(vector,0,len(vector)-1)
+print(vectorOrdenado)
+#################################################################################
+#DARKSOUL
+def cuantosMenores(vector, ini, fin,numeroDado):
+    if(ini==fin):
+        if(vector[ini])<=numeroDado:
+            return 1
+        else:
+            return 0
+    else:
+        mitad=(ini+fin)//2
+        num=vector[mitad]
+        if(num<=numeroDado):
+            return (mitad-ini+1)+cuantosMenores(vector,mitad+1,fin,numeroDado)
+        else:
+            return cuantosMenores(vector,ini,mitad,numeroDado)
+
+#MAIN
+numeroEnemies=int(input())
+nivelesCadaEnemi=input()
+niveles=nivelesCadaEnemi.split()
+N=[]
+AcumuladorPuntos=[]
+ac=0
+for n in niveles:
+    N.append(int(n))
+    ac=ac+int(n)
+    AcumuladorPuntos.append(ac)
+oleadas=int(input())
+for i in range(oleadas):
+    numeroDado=int(input())
+    menores=cuantosMenores(N,0,len(N)-1,numeroDado)
+    print(menores,AcumuladorPuntos[menores-1])
+#print(N)
+#print(AcumuladorPuntos)
+############################################################################
+#ULTIMOPAR
+def ultimoPar(vector, ini, fin):
+    if(ini==fin):
+        if(vector[ini]%2==0):
+            return [True,vector[ini]]
+        else:
+            return [False,-1]
+    else:
+        mitad=(ini+fin)//2
+        candidato=vector[mitad]
+        if(candidato%2==1):   
+            return ultimoPar(vector,ini,mitad)
+        else:      
+            [existeUltimoPar,cual]=ultimoPar(vector,mitad+1,fin)
+            if(existeUltimoPar==False):
+                return [True,candidato]
+            else:
+                return [True,cual]
+
+vector=[2,8,4,10,6,8,11,3,15,19]
+resultado=ultimoPar(vector,0,len(vector)-1)
+print(resultado)
+#################################################
+#BUSQUEDABINARIA
+def recBinarySearch(vector,ini,fin,buscado):
+    if(ini==fin):
+        if(vector[ini]==buscado):
+            return ini
+        else:
+            return -1
+    else:
+        mitad=(ini+fin)//2
+        candidato=vector[mitad]
+        if candidato==buscado:
+            return mitad
+        elif(buscado<vector[mitad]):
+            return recBinarySearch(vector,ini,mitad,buscado)
+        else:
+            return recBinarySearch(vector,mitad+1,fin,buscado)
+
+
+vector = [1, 3, 3,4, 5, 6, 9]
+buscado = 6
+posicion= recBinarySearch(vector,0,len(vector)-1,buscado)
+print(posicion)
+#################################################################################
+#SANDIA
+def suma(matriz, iniFilas, finFilas, iniColumnas, finColumnas):
+    suma = 0
+    for i in range(iniFilas, finFilas + 1):
+        for j in range(iniColumnas, finColumnas + 1):
+            suma += matriz[i][j]
+    return suma
+
+
+def numMinPepitas(matriz, iniFilas, finFilas, iniColumnas, finColumnas, cortes):
+    if iniFilas == finColumnas:
+        return matriz[iniFilas][finColumnas]
+    elif cortes == 0:
+        return suma(matriz, iniFilas, finFilas, iniColumnas, finColumnas)
+    else:
+        mitadFilas = (iniFilas + finFilas) // 2
+        mitadColumnas = (iniColumnas + finColumnas) // 2
+
+        pepitas = min(numMinPepitas(matriz, iniFilas, mitadFilas, iniColumnas, mitadColumnas, cortes - 1),
+                      numMinPepitas(matriz, iniFilas, mitadFilas, mitadColumnas + 1, finColumnas, cortes - 1),
+                      numMinPepitas(matriz, mitadFilas + 1, finFilas, iniColumnas, mitadColumnas, cortes - 1),
+                      numMinPepitas(matriz, mitadFilas + 1, finFilas, mitadColumnas + 1, finColumnas, cortes - 1))
+        return pepitas
+
+
+n, cortes = map(int, input().strip().split())
+matriz = []
+for i in range(n):
+    linea = input().strip()
+    trozos = linea.split()
+    fila = []
+    for trozo in trozos:
+        fila.append(int(trozo))
+    matriz.append(fila)
+
+num = numMinPepitas(matriz, 0, len(matriz) - 1, 0, len(matriz[0]) - 1, cortes)
+print(num)

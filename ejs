@@ -1,1 +1,1014 @@
 
+########################################################################################################################
+"""VORACESGRAFOS"""
+########################################################################################################################
+#nodos0
+# dijistra
+"""def selectMinDistance(distances, visited):
+    min = float('inf')
+    bestItem = -1
+
+    for i in range(len(distances)):  #######
+        if not visited[i] and distances[i] < min:
+            min = distances[i]
+            bestItem = i
+
+    return bestItem
+def dijkstra(g, origin):
+    distances = [float('inf')] * len(g)
+    visited = [False] * len(g)
+    distances[origin] = 0
+    visited[origin] = True
+    for start, end, weight in g[origin]:
+        distances[end] = weight
+    for _ in range(1, len(g)):  #######
+        nextNode = selectMinDistance(distances, visited)
+        visited[nextNode] = True
+        for start, end, weight in g[nextNode]:
+            distances[end] = min(distances[end], distances[start] + weight)
+    return distances"""
+# prim
+"""def selectMin(candidates, visited):
+    vertex = None
+    weight = float('inf')
+    for i in range(0, len(candidates)):  #####
+        if not visited[i] and candidates[i] < weight:
+            vertex = i
+            weight = candidates[i]
+    return vertex, weight
+def prim(g, N):
+    initial = randint(0, N - 1)  ######
+    candidates = [float('inf')] * N
+    for start, end, weight in g[initial]:
+        candidates[end] = weight
+
+    sol = 0
+    visited = [False] * N
+    visited[initial] = True
+    for i in range(1, N):  #########
+        (nextNode, cost) = selectMin(candidates, visited)
+        sol += cost
+        visited[nextNode] = True
+        for (start, end, weight) in g[nextNode]:
+            if not visited[end]:
+                candidates[end] = min(weight, candidates[end])
+    return sol"""
+# kruskal
+"""def updateComponents(components, new_id, old_id):
+    for i in range(0, len(components)):  #####
+        if (components[i] == old_id):
+            components[i] = new_id
+def sortCandidatos(g):
+    candidatos = []
+    for adjs in g:
+        for (start, end, weight) in adjs:
+            candidatos.append((weight, start, end))
+    candidatos.sort()
+    return candidatos
+def kruskal(g):
+    candidatos = sortCandidatos(g)
+
+    components = list(range(len(g)))
+    numeroComponentes = len(components)  ####
+    sol = 0
+
+    i = 0
+    while numeroComponentes > 0 and i < len(candidatos):  ####
+        (weight, start, end) = candidatos[i]
+        if components[start] != components[end]:
+            sol += weight
+            numeroComponentes -= 1
+            updateComponents(components, components[start], components[end])
+        i += 1
+    return sol"""
+#nodos1
+#dijistra
+"""def selectMinDistance(distances, visited):
+    minDist = float('inf')
+    bestItem = None
+
+    for i in range(1, len(distances)):
+        if not visited[i] and distances[i] < minDist:
+            minDist = distances[i]
+            bestItem = i
+
+    return bestItem
+
+def greedyDijkstra(origin, g):
+    n = len(g)
+    distances = [float('inf')] * n
+    distances[origin] = 0
+
+    visited = [False] * n
+    visited[origin] = True
+
+    for (start, end, weight) in g[origin]:
+        distances[end] = weight
+    for _ in range(2, n):
+        nextNode = selectMinDistance(distances, visited)
+        visited[nextNode] = True
+        for (start, end, weight) in g[nextNode]:
+            distances[end] = min(distances[end], distances[start] + weight)
+    return distances
+"""
+#prim
+"""def selectMin(visited, candidates):
+    vertex = None
+    weight = float('inf')
+    for i in range(1, len(candidates)):
+        if not visited[i] and candidates[i] < weight:
+            vertex = i
+            weight = candidates[i]
+    return (vertex, weight)
+
+def greedyPrim(g):
+    n = len(g)
+    candidates = [float('inf')] * n
+    initial = randint(1, n - 1)
+    for (start, end, weight) in g[initial]:
+        candidates[end] = weight
+
+    sol = 0
+    visited = [False] * n
+    visited[initial] = True
+    for _ in range(2, n):
+        (nextVertex, cost) = selectMin(visited, candidates)
+        visited[nextVertex] = True
+        sol += cost
+        for (start, end, weight) in g[nextVertex]:
+            if not visited[end]:
+                candidates[end] = min(weight, candidates[end])
+    return sol
+"""
+#kruskal
+"""def sortCandidates(g):
+    candidates = []
+    for adjs in g:
+        for (start, end, weight) in adjs:
+            candidates.append((weight, start, end))
+    candidates.sort()
+    return candidates
+
+def updateComponents(componets, newId, oldId):
+    for i in range(1,  len(componets)):
+        if componets[i] == oldId:
+            componets[i] = newId
+
+def greedyKruskal(g):
+    #Definición de candidatos
+    candidates = sortCandidates(g)
+    #Inicializar la solución
+    sol = 0
+    components = list(range(len(g))) #[0,1,2, ..7]
+    numComp = len(components) - 1
+
+   #bucle voraz
+    i = 0
+    while numComp > 1 and i < len(candidates):
+        #bestItem = getBestItem(XXXX)
+        (weight, start, end) = candidates[i]
+        if components[start] != components[end]:
+            sol += weight
+            numComp -= 1
+            updateComponents(components, components[start], components[end])
+        i += 1
+    return sol
+"""
+
+########################################################################################################################
+"""VORACES"""
+########################################################################################################################
+#hortelano
+"""def voraz(huertasOrdenadasBeneficio, solucion, diasCaducidadMaxima,huertasYaPuestas):
+    for i in range(len(huertasOrdenadasBeneficio)):
+        if(solucion[huertasOrdenadasBeneficio[i][1]-1]==-1):
+            solucion[huertasOrdenadasBeneficio[i][1]-1]=huertasOrdenadasBeneficio[i][0]
+            huertasYaPuestas[huertasOrdenadasBeneficio[i][0]]=True
+        else:
+            j=huertasOrdenadasBeneficio[i][1]-1
+            while(not huertasYaPuestas[huertasOrdenadasBeneficio[i][0]] and j>=0):
+                if(solucion[j]==-1):
+                    solucion[j]=huertasOrdenadasBeneficio[i][0]
+                    huertasYaPuestas[huertasOrdenadasBeneficio[i][0]] = True
+                else:
+                    j=j-1"""
+#desfaseHorario
+"""def voraz(TareasSorted,N):
+    solucion=[]
+    for i in range (N):
+        if len(solucion)==0 or TareasSorted[i][1]>solucion[len(solucion)-1][2]:
+            solucion.append(TareasSorted[i])
+    print(len(solucion))"""
+
+#masterChof
+"""def voraz(sortedAlimentos, N, C):
+    EspacioLibre=C
+    Valor=0
+    i=0
+    while i<N and EspacioLibre>0:
+        if(sortedAlimentos[i][1]<=EspacioLibre):
+            Valor=Valor+sortedAlimentos[i][2]
+            EspacioLibre=EspacioLibre-sortedAlimentos[i][1]
+        else:
+            Valor = Valor + EspacioLibre*sortedAlimentos[i][2]/sortedAlimentos[i][1]
+            EspacioLibre = EspacioLibre - sortedAlimentos[i][1]
+        i=i+1
+    print("{:.6f}".format(Valor))"""
+
+#finalStory
+"""def voraz(sortedEnemies,ataque,ataqueTodos,listaVidaEnemigos):
+    Valor=0
+    i=0
+    while i<len(sortedEnemies):
+        Valor=Valor+ataqueTodos
+        listaVidaEnemigos[i]=listaVidaEnemigos[i]-ataque
+        if(listaVidaEnemigos[i]<=0):
+            ataqueTodos=ataqueTodos-sortedEnemies[i][0]
+            i=i+1
+    print(Valor)"""
+
+#mercato
+"""import math
+def imprimir(nombres):
+    nombresOrdenados=sorted(nombres)
+    for i in nombresOrdenados:
+        print(i)
+def voraz(sortedJugadores, presupuesto, posPresi, elegidosYaPorCualquierPresi):
+    presupuestoDisp = presupuesto
+    Valor = 0
+    i = 0
+    JugadoresComprados = []
+    while (i < len(sortedJugadores) and presupuestoDisp > 0):
+        if not elegidosYaPorCualquierPresi[sortedJugadores[i][4]]:
+            if (sortedJugadores[i][1] <= presupuestoDisp):
+                Valor = Valor + sortedJugadores[i][2][posPresi]
+                presupuestoDisp = presupuestoDisp - sortedJugadores[i][1]
+                JugadoresComprados.append(sortedJugadores[i][0])
+                elegidosYaPorCualquierPresi[sortedJugadores[i][4]] = True
+            else:
+                Valor = Valor + presupuestoDisp * sortedJugadores[i][2][posPresi] / sortedJugadores[i][1]
+                presupuestoDisp = presupuestoDisp - sortedJugadores[i][1]
+                JugadoresComprados.append(sortedJugadores[i][0])
+                elegidosYaPorCualquierPresi[sortedJugadores[i][4]] = True
+        i = i + 1
+    return [JugadoresComprados,Valor]
+# MAIN
+numPresis, numJugadores, presupuesto = map(int, input().split())
+presidentes = []
+for i in range(numPresis):
+    nombre = input()
+    presidentes.append(nombre)
+
+jugadores = []
+for i in range(numJugadores):
+    cadena = input().strip().split()
+    nombre = cadena[0]
+    precio = int(cadena[1])
+    id=i
+    benficios = []
+    ratios = []
+    for j in range(numPresis):
+        beneficio = int(cadena[2 + j])
+        benficios.append(beneficio)
+        ratio = beneficio / precio
+        ratios.append(ratio)
+    jugadores.append((nombre, precio, benficios, ratios,id))
+#print(jugadores)
+elegidosYaPorCualquierPresi = [False] * numJugadores
+for i in range(numPresis):
+    sortedJugadoresSegunCadaPresi = sorted(jugadores, key=lambda x: -x[3][i])
+    print(sortedJugadoresSegunCadaPresi)
+    [nombres,valor]=voraz(sortedJugadoresSegunCadaPresi, presupuesto, i, elegidosYaPorCualquierPresi)
+    print(presidentes[i] + ":", math.ceil(valor))
+    imprimir(nombres)"""
+
+#boom
+"""for i in range(N):
+    vectorDistancias=dijkstra(g,i)
+    for j in range(len(vectorDistancias)):
+        if j!=i and tipos[i]==tipos[j] and vectorDistancias[j]<solucion[tipos[i]]:
+            solucion[tipos[i]]=vectorDistancias[j]"""
+
+
+#titan
+"""T = int(input())
+puntosUsados = [0] * N
+for i in range(T):
+    S, E = map(int, input().strip().split())
+    [distances, precedences] = dijkstra(g, S)
+    # print(precedences)
+    listaPrecedencias = []
+    listaPrecedencias.insert(0, E)
+    j = E
+    while (precedences[j] != -1):
+        listaPrecedencias.insert(0, precedences[j])
+        j = precedences[j]
+
+    for x in range(len(listaPrecedencias)):
+        if (listaPrecedencias[x] != -1):
+            puntosUsados[listaPrecedencias[x]] = puntosUsados[listaPrecedencias[x]] + 1
+print(puntosUsados)"""
+
+#bisbal
+#recorrido.append(candidates[i])
+"""[sol, recorrido]=kruskal(g)
+print(sol)
+#print(recorrido)
+for dron in dronesPedidosInfo:
+    costeCadaDron = 0
+    starYendCadaNodo = []
+    for (weight, start, end) in recorrido:
+        if start == dron:
+            costeCadaDron=costeCadaDron+weight
+            starYendCadaNodo.append(end)
+        elif end == dron:
+            costeCadaDron=costeCadaDron+weight
+            starYendCadaNodo.append(start)
+        #print(starYendCadaNodo)
+
+    starYendCadaNodo.sort()
+    print(str(costeCadaDron) + ":", end=" ")
+    for distancia in starYendCadaNodo:
+        print(distancia, end=" ")
+    print()"""
+
+########################################################################################################################
+"""GRAFOS"""
+########################################################################################################################
+#nodos0
+#bfs
+"""from collections import deque
+def bfsAux(v, g, visited):
+    q = deque()
+    visited[v] = True
+    q.append(v)
+    print(v, end=" ")
+    while q:
+        aux = q.popleft()
+        for adj in g[aux]:
+            if not visited[adj]:
+                visited[adj] = True
+                q.append(adj)
+                print(adj, end=" ")
+def bfs(g):
+    n = len(g)
+    visited = [False] * n
+    for v in range(n):
+        if not visited[v]:
+            bfsAux(v, g, visited)
+
+#MAIN
+N, M = map(int, input().strip().split())
+g = []
+for i in range(N):
+    fila = []
+    g.append(fila)
+for i in range(M):
+    a, b = map(int, input().strip().split())
+    g[a].append(b)
+    #g[b].append(a)     POR SI QUIERO QUE SEA UN GRAFO NO DIRIGIDO
+bfs(g)"""
+#dfs
+"""def dfsRec(g, visited, v):
+    visited[v] = True
+    print(v, end=" ")
+    for adj in g[v]:
+        if not visited[adj]:
+            dfsRec(g, visited, adj)
+def dfs(g):
+    n = len(g)
+    visited = [False] * n
+    for v in range(n):
+        if not visited[v]:
+            dfsRec(g, visited, v)
+#MAIN
+N, M = map(int, input().strip().split())
+g = []
+for i in range(N):
+    fila = []
+    g.append(fila)
+
+for i in range(M):
+    a, b = map(int, input().strip().split())
+    g[a].append(b)
+    #g[b].append(a)     POR SI QUIERO QUE SEA UN GRAFO NO DIRIGIDO
+dfs(g)"""
+#funciones0
+# SABIENDO DFS VIRGEN, SACAR NUMERO DE COMPONENTES CONEXAS
+"""def componentesConexasRec(g, visited, v):
+    visited[v] = True
+    # print(v, end=" ")
+    for adj in g[v]:
+        if not visited[adj]:
+            componentesConexasRec(g, visited, adj)
+def componentesConexas(g):
+    cont = 0
+    n = len(g)
+    visited = [False] * n
+    for v in range(n):
+        if not visited[v]:
+            cont = cont + 1
+            componentesConexasRec(g, visited, v)
+    return cont
+# SABIENDO NUMERO DE COMPONENTES CONEXAS, PODEMOS SABER SI ES CONEXO
+def esConexo(g):
+    return componentesConexas(g) == 1
+# BORRAR NODO DE UN GRAFO
+def borrarNodo(g, nodo):
+    g[nodo] = []
+    for i in range(len(g)):
+        if nodo in g[i]:
+            g[i].remove(nodo)
+# -------------------------------------------------------
+# SABIENDO "NUMERO DE COMPONENTES CONEXAS" Y "BORRAR NODO" PODEMOS SABER LOS PUNTOS ARTICULADOS QUE HAY
+def puntosArticulados(g):
+    lista = []
+    for nodo in range(len(g)):
+        copiaGrafo = copy.deepcopy(g)
+        borrarNodo(copiaGrafo, nodo)
+        numComponentesConexas = componentesConexas(copiaGrafo)
+        if (numComponentesConexas > 2):
+            lista.append(nodo)
+    return lista
+# -------------------------------------------------------
+# SABIENDO DFS VIRGEN,PARA SABER SI HAY CICLOS O NO
+def hayCiclosRec(g, visited, v, anterior):
+    visited[v] = True
+    # print(v, end=" ")
+    for adj in g[v]:
+        if not visited[adj]:
+            resultado = hayCiclosRec(g, visited, adj, v)
+            if resultado:
+                return resultado
+        elif adj != anterior:
+            return True
+    return False
+def hayCiclos(g):
+    n = len(g)
+    visited = [False] * n
+    for v in range(n):
+        if not visited[v]:
+            resultado = hayCiclosRec(g, visited, v, v)
+            if resultado:
+                return True
+    return False
+# SABIENDO BFS VIRGEN, SACAR TAMBIÉN NUMERO DE COMPONENTES CONEXAS (CASI IGUAL QUE BFS NORMAL)
+def componentesConexasRecAux(g, visited, v):
+    q = deque()
+    visited[v] = True
+    #print(v, end=" ")
+    q.append(v)
+    while q:
+        aux = q.popleft()
+        for adj in g[aux]:
+            if not visited[adj]:
+                visited[adj] = True
+                #print(adj, end=" ")
+                q.append(adj)
+def componentesConexasAux(g):
+    n = len(g)
+    cont=0
+    visited = [False] * n
+    for v in range(n):
+        if not visited[v]:
+            componentesConexasRecAux(g, visited, v)
+            cont=cont+1
+    print(cont)"""
+#nodos1
+"""def dfs (g):
+    n=len (g)
+    visited =[False]*n
+    for v in range (1,n):
+        if not visited[v]:
+            dfsRec (g, visited, v)
+
+def dfsRec (g, visited, v):
+    visited[v]=True
+    print (v,end=" ")
+    for adj in g[v]:
+        if not visited [adj]:
+            dfsRec(g, visited, adj)
+def numComponentesConexas (g):
+    n = len(g)
+    cont=0
+    visited = [False] * n
+    for v in range(1, n):
+        if not visited[v]:
+            cont=cont+1
+            numComponentesConexasRec(g, visited, v)
+    return cont
+def numComponentesConexasRec (g, visited, v):
+    visited[v]=True
+    for adj in g[v]:
+        if not visited [adj]:
+            numComponentesConexasRec(g, visited, adj)
+
+def tieneCiclosRec (g, visited, v, anterior):
+    visited[v]=True
+    for adj in g[v]:
+        if not visited [adj]:
+            resultado= tieneCiclosRec(g, visited, adj,v)
+            if resultado:
+                return resultado
+        elif adj!=anterior:
+            return True
+    return False
+def tieneCiclos (g):
+    n = len(g)
+    visited = [False] * n
+    for v in range(1, n):
+        if not visited[v]:
+            resultado = tieneCiclosRec(g, visited, v,v)
+            if resultado:
+                return True
+    return False
+
+def bfsAux (g, visited, v):
+    q = deque()
+    visited[v]=True
+    print (v, end=" ")
+    q.append (v)
+    while q:
+        aux = q.popleft()
+        for adj in g[aux]:
+            if not visited [adj]:
+                visited[adj]=True
+                print (adj,end=" ")
+                q.append(adj)
+def bfs (g):
+    n = len (g)
+    visited = [False] * n
+    for v in range (1,n):
+        if not visited[v]:
+            bfsAux (g, visited, v)
+
+def esConexo (g):
+    return numComponentesConexas(g)==1
+
+def borrarNodo (g, nodo):
+    g[nodo]=[]
+    for i in range (len (g)):
+        g[i].remove (nodo)
+
+def puntosArticulados (g):
+    lista=[]
+    for nodo in range (1,len (g)):
+        g_copia=copy.deepcopy(g)
+        borrarNodo (g_copia, nodo)
+        num=numComponentesConexas(g_copia)
+        if (num>2):
+            lista.append(nodo)
+    return lista"""
+#tiktok
+"""def bfsAux(g, visited, v,nivelBaile):
+    q = deque()
+    visited[v] = True
+    #print(v, end=" ")
+    nivel=1
+    VisitasVideo=1
+    q.append((v,nivel))
+    while q:
+        (aux,nivel) = q.popleft()
+        for adj in g[aux]:
+            if not visited[adj] and nivel<nivelBaile:
+                visited[adj] = True
+                #print(adj, end=" ")
+                VisitasVideo=VisitasVideo+1
+                q.append((adj,nivel+1))
+    return VisitasVideo"""
+
+
+
+########################################################################################################################
+"""DYV"""
+########################################################################################################################
+#godOfWar
+"""def DyV(vector, ini, fin, buscado):
+    if(ini==fin):
+        if(vector[ini]<=buscado):
+            return ini
+        else:
+            return -1
+    else:
+        mitad=(ini+fin)//2
+        if(vector[mitad]==buscado):
+            return mitad
+        elif(vector[mitad]>buscado):
+            return DyV(vector,ini,mitad,buscado)
+        else:
+            pos=DyV(vector,mitad+1,fin,buscado)
+            if(pos!=-1):
+                return pos
+            else:
+                return mitad
+N=int(input())
+cadena=input().strip().split()
+niveles=[]
+for i in range(N):
+    niveles.append(int(cadena[i]))
+#print(niveles)
+Q=int(input())
+cadena2=input().strip().split()
+pruebas=[]
+for i in range(Q):
+    pruebas.append(int(cadena2[i]))
+#print(pruebas)
+
+for prueba in pruebas:
+    posicion=DyV(niveles,0,len(niveles)-1,prueba)
+    if(posicion==-1):  
+        print("X",niveles[0])
+    elif niveles[posicion]==prueba:
+        if(posicion==0):
+            print("X",niveles[posicion+1])
+        elif(posicion==len(niveles)-1):
+            print(niveles[posicion-1],"X")
+        else:
+            print(niveles[posicion-1],niveles[posicion+1])
+    elif niveles[posicion]!=prueba:
+        if (posicion == 0):
+            print(niveles[posicion], niveles[posicion + 1])
+        elif (posicion == len(niveles) - 1):
+            print(niveles[posicion], "X")
+        else:
+            print(niveles[posicion], niveles[posicion + 1])
+
+"""
+#sandia
+"""def DyV(sandia, iniF, finF, iniC, finC,C):
+    if(iniF==finF):
+        return sandia[iniF][iniC]
+    elif C==0:
+        pepitas=0
+        for i in range(iniF,finF+1):
+            for j in range(iniC,finC+1):
+                pepitas=pepitas+sandia[i][j]
+        return pepitas
+    else:
+        mitadF=(iniF+finF)//2
+        mitadC=(iniC+finC)//2
+        return min(DyV(sandia, iniF, mitadF, iniC, mitadC,C-1),DyV(sandia, iniF, mitadF, mitadC+1, finC,C-1),
+               DyV(sandia, mitadF+1, finF, iniC, mitadC, C-1),DyV(sandia, mitadF+1, finF, mitadC+1, finC,C-1))
+
+
+N,C=map(int,input().strip().split())
+sandia=[]
+for i in range (N):
+    fila=list(map(int,input().strip().split()))
+    sandia.append(fila)
+
+#print(sandia)
+numeroMinPepitas=DyV(sandia,0,N-1,0,N-1,C)
+print(numeroMinPepitas)"""
+########################################################################################################################
+"""BT"""
+########################################################################################################################
+#cuadrado
+"""def imprimir(tablero):
+    for i in range(len(tablero)):
+        for j in range(len(tablero[i])):
+            print(tablero[i][j],end=" ")
+        print()
+def esFactible(tablero, nuevaX, nuevaY, intento,numeroPuesto,sumaEnfilas,sumaColumnas,numeroMagico,diagonalArribaIzqAbajoDcha,diagonalArribaDchaAbajoIzq):
+    if(numeroPuesto[intento-1]):
+        return False
+    if nuevaY==N-1 and sumaEnfilas[nuevaX]+intento!=numeroMagico:
+        return False
+    if nuevaX==N-1 and sumaColumnas[nuevaY]+intento!=numeroMagico:
+        return False
+    if (nuevaY<N-1 and sumaEnfilas[nuevaX]+intento>=numeroMagico):
+        return False
+    if (nuevaX<N-1 and sumaColumnas[nuevaY] + intento >= numeroMagico):
+        return False
+    #------------------PARA LAS DOS DIAGONALES
+    if nuevaX==N-1 and (nuevaX==nuevaY) and diagonalArribaIzqAbajoDcha[0]+intento!=numeroMagico:
+        return False
+    if nuevaY==0 and (nuevaX+nuevaY==N-1) and diagonalArribaDchaAbajoIzq[0]+intento!=numeroMagico:
+        return False
+    if nuevaX<N-1 and (nuevaX==nuevaY) and diagonalArribaIzqAbajoDcha[0]+intento>=numeroMagico:
+        return False
+    if nuevaY>0 and (nuevaX+nuevaY==N-1) and diagonalArribaDchaAbajoIzq[0]+intento>=numeroMagico:
+        return False
+    return True
+
+def BT(tablero, XparaRellenar, YparaRellenar,numeroPuesto,sumaEnfilas,sumaColumnas,numeroMagico,diagonalArribaIzqAbajoDcha,diagonalArribaDchaAbajoIzq):
+    exito=False
+    intento=1
+    while(intento<=(N*N) and not exito):
+        if esFactible(tablero,XparaRellenar,YparaRellenar,intento,numeroPuesto,sumaEnfilas,sumaColumnas,numeroMagico,diagonalArribaIzqAbajoDcha,diagonalArribaDchaAbajoIzq):
+            tablero[XparaRellenar][YparaRellenar]=intento
+            numeroPuesto[intento-1]=True
+            sumaEnfilas[XparaRellenar]=sumaEnfilas[XparaRellenar]+intento
+            sumaColumnas[YparaRellenar] = sumaColumnas[YparaRellenar] + intento
+            if(XparaRellenar==YparaRellenar):
+                diagonalArribaIzqAbajoDcha[0]=diagonalArribaIzqAbajoDcha[0]+intento
+            if(XparaRellenar+YparaRellenar==N-1):
+                diagonalArribaDchaAbajoIzq[0]=diagonalArribaDchaAbajoIzq[0]+intento
+            if XparaRellenar==N-1 and YparaRellenar==N-1:
+                exito=True
+            else:
+                if(YparaRellenar==N-1):
+                    nuevaX=XparaRellenar+1
+                    nuevaY=0
+                else:
+                    nuevaX=XparaRellenar
+                    nuevaY=YparaRellenar+1
+                exito=BT(tablero,nuevaX,nuevaY,numeroPuesto,sumaEnfilas,sumaColumnas,numeroMagico,diagonalArribaIzqAbajoDcha,diagonalArribaDchaAbajoIzq)
+            if not exito:
+                tablero[XparaRellenar][YparaRellenar]=0
+                numeroPuesto[intento - 1] = False
+                sumaEnfilas[XparaRellenar] = sumaEnfilas[XparaRellenar] - intento
+                sumaColumnas[YparaRellenar] = sumaColumnas[YparaRellenar] - intento
+                if (XparaRellenar == YparaRellenar):
+                    diagonalArribaIzqAbajoDcha[0] = diagonalArribaIzqAbajoDcha[0] - intento
+                if (XparaRellenar + YparaRellenar == N - 1):
+                    diagonalArribaDchaAbajoIzq[0] = diagonalArribaDchaAbajoIzq[0] - intento
+        intento=intento+1
+    return exito
+N=int(input())
+tablero=[]
+for i in range(N):
+    fila=[0]*N
+    tablero.append(fila)
+
+#imprimir(tablero)
+numeroPuesto=[False]*(N*N)
+
+sumaEnfilas=[0]*N
+sumaColumnas=[0]*N
+
+numeroMagico=(N*(N*N+1))/2
+
+diagonalArribaIzqAbajoDcha=[0]
+diagonalArribaDchaAbajoIzq=[0]
+
+exito=BT(tablero,0,0,numeroPuesto,sumaEnfilas,sumaColumnas,numeroMagico,diagonalArribaIzqAbajoDcha,diagonalArribaDchaAbajoIzq)
+if exito:
+    imprimir(tablero)
+else:
+    print("NO SOLUCION")"""
+#casiSudoku
+"""def imprimir(tablero):
+    for i in range(len(tablero)):
+        for j in range(len(tablero[i])):
+            print(tablero[i][j],end=" ")
+        print()
+
+
+def esFactible(tablero, nuevaX, nuevaY, repesFilasMatriz, repesColumnasMatriz,repesCuadranteMatriz,intento):
+    return 0 <= nuevaX < N and 0 <= nuevaY < N and not repesFilasMatriz[nuevaX][intento-1] \
+           and not repesColumnasMatriz[nuevaY][intento-1] and not repesCuadranteMatriz[dameCuadrante(nuevaX,nuevaY)][intento-1]
+
+def dameCuadrante(xInicial, yInicial):
+    if(yInicial<3):
+        if(xInicial<3):
+            return 0
+        elif(xInicial<6):
+            return 1
+        else:
+            return 2
+    elif (yInicial < 6):
+        if (xInicial < 3):
+            return 3
+        elif (xInicial < 6):
+            return 4
+        else:
+            return 5
+    else:
+        if (xInicial < 3):
+            return 6
+        elif (xInicial < 6):
+            return 7
+        else:
+            return 8
+
+
+def copiar(tablero,solucionGuardada):
+    for i in range(len(tablero)):
+        for j in range(len(tablero)):
+            solucionGuardada[i][j]=tablero[i][j]
+
+def BT(tablero,xInicial,yInicial, repesFilasMatriz, repesColumnasMatriz,repesCuadranteMatriz,contarSoluciones,solucionGuardada):
+    if(tablero[xInicial][yInicial]==0):
+        intento=1
+        while(intento<=9):
+            if esFactible(tablero,xInicial,yInicial,repesFilasMatriz,repesColumnasMatriz,repesCuadranteMatriz,intento):
+                tablero[xInicial][yInicial]=intento
+                repesFilasMatriz[xInicial][intento-1]=True
+                repesColumnasMatriz[yInicial][intento - 1] = True
+                repesCuadranteMatriz[dameCuadrante(xInicial,yInicial)][intento - 1] = True
+                if (xInicial==N-1 and yInicial==N-1):
+                    contarSoluciones[0]=contarSoluciones[0]+1
+                    copiar(tablero,solucionGuardada)                
+                    # imprimir(tablero)
+                else:
+                    if(yInicial==N-1):
+                        nuevaX=xInicial+1
+                        nuevaY=0
+                    else:
+                        nuevaX=xInicial
+                        nuevaY=yInicial+1
+                    BT(tablero,nuevaX,nuevaY,repesFilasMatriz,repesColumnasMatriz,repesCuadranteMatriz,contarSoluciones,solucionGuardada)
+
+                tablero[xInicial][yInicial] = 0
+                repesFilasMatriz[xInicial][intento - 1] = False
+                repesColumnasMatriz[yInicial][intento - 1] = False
+                repesCuadranteMatriz[dameCuadrante(xInicial, yInicial)][intento - 1] = False
+            intento=intento+1
+    else:
+        if (xInicial==N-1 and yInicial==N-1):
+            contarSoluciones[0] = contarSoluciones[0] + 1
+            copiar(tablero, solucionGuardada)                     
+            #imprimir(tablero)
+        else:
+            if(yInicial==N-1):
+                nuevaX=xInicial+1
+                nuevaY=0
+            else:
+                nuevaX=xInicial
+                nuevaY=yInicial+1
+            BT(tablero,nuevaX,nuevaY,repesFilasMatriz,repesColumnasMatriz,repesCuadranteMatriz,contarSoluciones,solucionGuardada)
+#MAIN
+N=9
+tablero=[]
+for i in range(N):
+    fila=list(map(int,input().strip().split()))
+    tablero.append(fila)
+
+#imprimir(tablero)
+
+repesFilasMatriz=[]
+for i in range(N):
+    fila=[False]*N
+    repesFilasMatriz.append(fila)
+
+repesColumnasMatriz=[]
+for i in range(N):
+    fila=[False]*N
+    repesColumnasMatriz.append(fila)
+
+repesCuadranteMatriz=[]
+for i in range(N):
+    fila=[False]*N
+    repesCuadranteMatriz.append(fila)
+
+#ACTUALIZAR DADOS NUMEROS
+for i in range(N):
+    for j in range(N):
+        if(tablero[i][j]!=0):
+            repesFilasMatriz[i][tablero[i][j]-1]=True
+            repesColumnasMatriz[j][tablero[i][j]-1]=True
+            repesCuadranteMatriz[dameCuadrante(i,j)][tablero[i][j]-1]=True
+
+contarSoluciones=[0]                                                                      
+solucionGuardada=[]                                                                    
+for i in range (N):                                                                        
+    fila=[0]*N                                                                             
+    solucionGuardada.append(fila)                                                           
+
+BT(tablero,0,0,repesFilasMatriz,repesColumnasMatriz,repesCuadranteMatriz,contarSoluciones,solucionGuardada)
+if(contarSoluciones[0]==0):
+    print("imposible")
+elif(contarSoluciones[0]>1):
+    print("casi sudoku")
+else:
+    imprimir(solucionGuardada)"""
+
+#hamiltoniano
+"""def esFactible(g, solucion,visitados, etapa, intento):
+    if (etapa == 0):
+        return True
+    elif (etapa < len(solucion) - 1):
+        if not visitados[intento] and g[solucion[etapa - 1]][intento]:
+            return True
+    elif (etapa == len(solucion) - 1):
+        if visitados[intento] and intento == solucion[0] and g[solucion[etapa - 1]][intento]:
+            return True
+    return False"""
+
+#euleriano
+"""def esFactible(g, aristasVisitadasMatriz, etapa, intento):
+    if(etapa==0):
+        return True
+    elif g[solucion[etapa - 1]][intento] and not aristasVisitadasMatriz[solucion[etapa - 1]][intento] \
+            and not aristasVisitadasMatriz[intento][solucion[etapa- 1]]:
+        return True
+    return False"""
+#doraemon
+"""def esFactible(Objetos, ValorTotal, etapa,contadorIds,intento):
+    if intento==1:
+        return Objetos[etapa][2]<=EspacioDisp[0]
+    if intento==2:
+        return True
+
+
+def BT(Objetos, ValorTotal, etapa,EspacioDisp,contadorIds,ValorMejor):
+    intento=1  #1 cojo 2 no
+    while(intento<=2):
+        if esFactible(Objetos,ValorTotal,etapa,contadorIds,intento):
+            if intento==1:
+                ValorTotal[0]=ValorTotal[0]+Objetos[etapa][1]
+                EspacioDisp[0]=EspacioDisp[0]-Objetos[etapa][2]
+                contadorIds[0]=contadorIds[0]+Objetos[etapa][0]
+            if(etapa==N-1) and contadorIds[0]%5!=0:                                     ##################
+                if(ValorTotal[0]>ValorMejor[0]):
+                    ValorMejor[0]=ValorTotal[0]
+            else:
+                if(etapa<N-1):                                                          ##################
+                    BT(Objetos,ValorTotal,etapa+1,EspacioDisp,contadorIds,ValorMejor)
+
+            if intento == 1:
+                ValorTotal[0] = ValorTotal[0] - Objetos[etapa][1]
+                EspacioDisp[0] = EspacioDisp[0] + Objetos[etapa][2]
+                contadorIds[0] = contadorIds[0] - Objetos[etapa][0]
+        intento=intento+1
+
+N,M=map(int,input().strip().split())
+Objetos=[]
+for i in range(N):
+    id,V,P=map(int,input().strip().split())
+    Objetos.append((id,V,P))
+#print(Pesos)
+#print(Valores)
+
+ValorTotal=[0]
+EspacioDisp=[M]
+contadorIds=[0]
+
+ValorMejor=[0]
+BT(Objetos,ValorTotal,0,EspacioDisp,contadorIds,ValorMejor)
+print(ValorMejor[0])"""
+
+#sableLaser
+"""def imprimir(tablero):
+    for i in range(len(tablero)):
+        for j in range(len(tablero[i])):
+            print(tablero[i][j],end=" ")
+        print()
+
+
+def esFactible(tablero, nuevaX, nuevaY, movimientosEjeX, movimientosEjeY,intento,numeroRecompensasRecogidas,pasosDados):
+    return 0 <= nuevaX < N and 0 <= nuevaY < M \
+           and (tablero[nuevaX][nuevaY] == "f" or tablero[nuevaX][nuevaY] == "e" or tablero[nuevaX][nuevaY] == "x") \
+           and not (0 <= nuevaX + 1 < N and tablero[nuevaX + 1][nuevaY] == "u") \
+            and not (0 <= nuevaY + 1 < M and tablero[nuevaX][nuevaY + 1] == "l") \
+            and not (0 <= nuevaX - 1 < N and tablero[nuevaX - 1][nuevaY] == "d") \
+            and not (0 <= nuevaY - 1 < M and tablero[nuevaX][nuevaY - 1] == "r")
+
+
+def BT(tablero, xInicial, yInicial, xFinal, yFinal,movimientosEjeX,movimientosEjeY,numeroRecompensasRecogidas,pasosDados,mejoresPasos,mejoresRecompensas):
+    intento=0
+    while(intento<4):
+        nuevaX=xInicial+movimientosEjeX[intento]
+        nuevaY=yInicial+movimientosEjeY[intento]
+        if esFactible(tablero,nuevaX,nuevaY,movimientosEjeX,movimientosEjeY,intento,numeroRecompensasRecogidas,pasosDados):
+            antiguoValor=tablero[nuevaX][nuevaY]
+            tablero[nuevaX][nuevaY]="X"
+            if(antiguoValor=="x"):
+                numeroRecompensasRecogidas[0]=numeroRecompensasRecogidas[0]+1
+            pasosDados[0]=pasosDados[0]+1
+            if(nuevaX==xFinal and nuevaY==yFinal):
+                if (numeroRecompensasRecogidas[0] > mejoresRecompensas[0]):
+                    mejoresRecompensas[0]=numeroRecompensasRecogidas[0]
+                    mejoresPasos[0] = pasosDados[0]
+                if (numeroRecompensasRecogidas[0]==mejoresRecompensas[0] and pasosDados[0] < mejoresPasos[0]):
+                    mejoresRecompensas[0] = numeroRecompensasRecogidas[0]
+                    mejoresPasos[0] = pasosDados[0]
+                #imprimir(tablero)
+            else:
+                BT(tablero,nuevaX,nuevaY,xFinal,yFinal,movimientosEjeX,movimientosEjeY,numeroRecompensasRecogidas,pasosDados,mejoresPasos,mejoresRecompensas)
+
+            tablero[nuevaX][nuevaY]=antiguoValor
+            if (antiguoValor == "x"):
+                numeroRecompensasRecogidas[0] = numeroRecompensasRecogidas[0]-1
+            pasosDados[0] = pasosDados[0] - 1
+        intento=intento+1
+
+
+#MAIN
+N,M=map(int,input().strip().split())
+tablero=[]
+for i in range(N):
+    cadena=input().strip().split()
+    fila=[]
+    for j in range(M):
+        if(cadena[j]=="s"):
+            inicio=[i,j]
+        if(cadena[j]=="e"):
+            fin=[i,j]
+        fila.append(cadena[j])
+    tablero.append(fila)
+#imprimir(tablero)
+
+movimientosEjeX=[-1,0,0,1]
+movimientosEjeY=[0,-1,1,0]
+
+numeroRecompensasRecogidas=[0]
+pasosDados=[0]
+
+
+mejoresPasos=[N*M]
+mejoresRecompensas=[-1]
+BT(tablero,inicio[0],inicio[1],fin[0],fin[1],movimientosEjeX,movimientosEjeY,numeroRecompensasRecogidas,pasosDados,mejoresPasos,mejoresRecompensas)
+print(mejoresRecompensas[0],mejoresPasos[0])
+"""
